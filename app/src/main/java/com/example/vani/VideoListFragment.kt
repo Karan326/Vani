@@ -37,7 +37,6 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -50,7 +49,6 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
         CoroutineScope(Dispatchers.Main).launch { initialiseList() }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private suspend fun initialiseList() {
 
         withContext(Dispatchers.IO) {
@@ -59,12 +57,11 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                 val projection = arrayOf(
                     MediaStore.Video.Media._ID,
                     MediaStore.Video.Media.DISPLAY_NAME,
-                    MediaStore.Video.Media.DURATION,
                     MediaStore.Video.Media.SIZE
                 )
 
 // Show only videos that are at least 5 minutes in duration.
-                val selection = "${MediaStore.Video.Media.DURATION} >= ?"
+               // val selection = "${MediaStore.Video.Media.DURATION} >= ?"
                 val selectionArgs = arrayOf(
                     TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES).toString()
                 )
@@ -75,8 +72,8 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                 val query = context?.applicationContext?.contentResolver?.query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     projection,
-                    selection,
-                    selectionArgs,
+                    null,
+                    null,
                     sortOrder
                 )
                 query?.use { cursor ->
@@ -84,8 +81,6 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                     val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
                     val nameColumn =
                         cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
-                    val durationColumn =
-                        cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
                     val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
 
 
@@ -93,7 +88,7 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                         // Get values of columns for a given video.
                         val id = cursor.getLong(idColumn)
                         val name = cursor.getString(nameColumn)
-                        val duration = cursor.getInt(durationColumn)
+                        //val duration = cursor.getInt(durationColumn)
                         val size = cursor.getInt(sizeColumn)
 
                         val contentUri: Uri = ContentUris.withAppendedId(
@@ -109,7 +104,7 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                         // Stores column values and the contentUri in a local object
                         // that represents the media file.
 
-                        videoList += Video(contentUri, name, duration, size)
+                        videoList += Video(contentUri, name, size)
                         Log.d("TAG", name)
                     }
                     videoList
