@@ -19,7 +19,7 @@ import com.example.vani.databinding.VideoListLayoutBinding
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
-class VideoListFragment : Fragment() {
+class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragment {
 
     private lateinit var videoListAdapter: VideoListAdapter
     private lateinit var binding: VideoListLayoutBinding
@@ -44,6 +44,7 @@ class VideoListFragment : Fragment() {
         videoListAdapter = VideoListAdapter()
         val mLayoutManager = GridLayoutManager(context, 2, RecyclerView.VERTICAL, false)
         binding.videoListRV.layoutManager = mLayoutManager
+        videoListAdapter.setCallBacktoVideoListFragment(this)
         binding.videoListRV.adapter = videoListAdapter
 
         CoroutineScope(Dispatchers.Main).launch { initialiseList() }
@@ -120,6 +121,13 @@ class VideoListFragment : Fragment() {
             }
 
         }
+
+
+    }
+
+    override fun sendDataAndOpenPlayer(uri: Uri) {
+
+
 
 
     }

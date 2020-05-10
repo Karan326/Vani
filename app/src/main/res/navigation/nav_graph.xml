@@ -6,6 +6,18 @@
     <fragment
         android:id="@+id/videoListFragment"
         android:name="com.example.vani.VideoListFragment"
-        android:label="VideoListFragment" />
-    <fragment android:id="@+id/placeholder" />
+        android:label="VideoListFragment" >
+        <action
+            android:id="@+id/action_videoListFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+
+        <argument
+            android:name="uri"
+            app:argType="string"
+            android:defaultValue="null"/>
+    </fragment>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.example.vani.PlayerFragment"
+        android:label="PlayerFragment" />
 </navigation>
