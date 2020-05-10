@@ -48,6 +48,7 @@ class PlayerFragment : Fragment() {
 
     var fullscreen = false
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         uri = Uri.parse(arguments?.getString("uri"))
@@ -62,12 +63,12 @@ class PlayerFragment : Fragment() {
                     View.SYSTEM_UI_FLAG_VISIBLE
 
                 (activity as MainActivity).requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 fullscreen = false
             } else {
                 hideSystemUi()
                 (activity as MainActivity).requestedOrientation =
-                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 fullscreen = true
             }
         }
