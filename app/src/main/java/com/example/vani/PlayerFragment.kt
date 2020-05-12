@@ -1,6 +1,7 @@
 package com.example.vani
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 
 class PlayerFragment : Fragment() {
 
@@ -72,12 +74,16 @@ class PlayerFragment : Fragment() {
                 fullscreen = true
             }
         }
+
+        val intent=Intent(context,PlayerService::class.java)
+        intent.putExtra("uri",uri)
+        Util.startForegroundService(context,intent)
     }
 
 
     private fun buildMediaSource(uri: Uri): MediaSource {
         // These factories are used to construct two media sources below
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, "vani_player")
+        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context,"vani_player"))
         val mediaSourceFactory = DashMediaSource.Factory(dataSourceFactory)
         val mediaSourceFactory1 =
             ProgressiveMediaSource.Factory(dataSourceFactory)
@@ -87,7 +93,7 @@ class PlayerFragment : Fragment() {
 
         // Additionally create a media source using an MP3
         //  val audioUri = Uri.parse(getString(R.string.media_url_mp3))
-        // val mediaSource2: MediaSource = mediaSourceFactory1.createMediaSource(audioUri)
+        // val mediaSource2: MediaSource = med  iaSourceFactory1.createMediaSource(audioUri)
         return mediaSource1
     }
 
@@ -106,6 +112,9 @@ class PlayerFragment : Fragment() {
             (player as SimpleExoPlayer).seekTo(currentWindow, playbackPosition)
             (player as SimpleExoPlayer).prepare(mediaSource, false, false)
         }
+
+
+
     }
 
 

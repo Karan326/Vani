@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Vani</string>
+    <string name="notification_channel_name">Vani</string>
+    <string name="description_notification">Description</string>
 </resources>
