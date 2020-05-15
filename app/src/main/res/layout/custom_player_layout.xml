@@ -38,19 +38,23 @@
             style="@style/ExoMediaButton.FastForward"
             android:tint="@color/colorPrimaryDark" />
 
-        <!-- <ImageButton android:id="@id/exo_next"
-             style="@style/ExoMediaButton.Next"/>
+       <ImageButton android:id="@id/exo_next"
+             style="@style/ExoMediaButton.Next"
+           android:tint="@color/colorPrimaryDark"/>
 
-         <ImageButton android:id="@id/exo_vr"
-             style="@style/ExoMediaButton.VR"/>-->
+       <!--  <ImageButton android:id="@id/exo_vr"
+             style="@style/ExoMediaButton.VR"
+             android:tint="@color/colorPrimaryDark"/>-->
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         android:gravity="center_vertical"
+        android:background="#000000"
+        android:alpha="0.7"
         app:layout_constraintBottom_toBottomOf="parent"
         android:orientation="horizontal">
 
@@ -60,7 +64,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:padding="4dp"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="#ffffff"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -69,8 +73,8 @@
             android:id="@id/exo_progress_placeholder"
             android:layout_width="0dp"
             android:layout_height="26dp"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:tint="@color/colorAccent"
+            android:alpha="0.7"
+            android:background="#ffffff"
             android:layout_weight="1" />
 
         <TextView
@@ -79,7 +83,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:padding="4dp"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="#ffffff"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -92,7 +96,7 @@
             android:layout_margin="10dp"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-            android:tint="@color/colorPrimaryDark"
+            android:tint="#ffffff"
             android:src="@drawable/full_screen_ic"/>
 
 

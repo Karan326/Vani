@@ -6,32 +6,30 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.Surface
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.example.vani.databinding.PlayerLayoutBinding
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import kotlinx.android.synthetic.main.custom_player_layout.*
 
-class PlayerFragment : Fragment() {
+class PlayerFragment : Fragment(), View.OnTouchListener{
 
     private var fullscreenButton: ImageView? = null
     private lateinit var binding: PlayerLayoutBinding
     private var player: SimpleExoPlayer? = null
+    private val mScaleGestureDetector: ScaleGestureDetector? = null
+
 
     private var playbackStateListener: PlaybackAnalyticsListener? = null
     private val TAG: String = PlayerFragment::class.java.name
@@ -44,11 +42,20 @@ class PlayerFragment : Fragment() {
     ): View? {
 
         binding = PlayerLayoutBinding.inflate(inflater)
+
         return binding.root
 
     }
 
     var fullscreen = false
+
+
+   /* override fun onScale(detector: ScaleGestureDetector?): Boolean {
+
+        return false
+
+    }*/
+
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,26 +82,59 @@ class PlayerFragment : Fragment() {
             }
         }
 
-        val intent=Intent(context,PlayerService::class.java)
-        intent.putExtra("uri",uri)
-        Util.startForegroundService(context,intent)
+        val intent = Intent(context, PlayerService::class.java)
+        intent.putExtra("uri", uri)
+        Util.startForegroundService(context, intent)
+    }
+
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        if (isInPictureInPictureMode) {
+
+            (activity as MainActivity).supportActionBar?.hide()
+            seekbar.visibility = View.GONE
+            Log.d("testing", "entered pip mode")
+
+        } else {
+            (activity as MainActivity).supportActionBar?.show()
+            seekbar.visibility = View.VISIBLE
+
+            Log.d("testing", "exit pip mode")
+        }
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode)
     }
 
 
-    private fun buildMediaSource(uri: Uri): MediaSource {
+    private fun buildMediaSource(uri: Uri): MediaSource? {
         // These factories are used to construct two media sources below
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context,"vani_player"))
+        val dataSourceFactory: DataSource.Factory =
+            DefaultDataSourceFactory(context, Util.getUserAgent(context, "vani_player"))
         val mediaSourceFactory = DashMediaSource.Factory(dataSourceFactory)
-        val mediaSourceFactory1 =
-            ProgressiveMediaSource.Factory(dataSourceFactory)
 
+        val mediaSource: MediaSource?
+        when (Util.inferContentType(uri)) {
+            C.TYPE_HLS -> {
+                mediaSource =
+                    ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+            }
+
+            C.TYPE_OTHER -> {
+                mediaSource =
+                    ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+            }
+
+            else -> {
+                //This is to catch SmoothStreaming and
+                //DASH types which we won't support currently, exit
+                mediaSource =
+                    ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+            }
+        }
         // Create a media source using the supplied URI
-        val mediaSource1: MediaSource = mediaSourceFactory1.createMediaSource(uri)
 
         // Additionally create a media source using an MP3
         //  val audioUri = Uri.parse(getString(R.string.media_url_mp3))
         // val mediaSource2: MediaSource = med  iaSourceFactory1.createMediaSource(audioUri)
-        return mediaSource1
+        return mediaSource
     }
 
     private fun initializePlayer() {
@@ -106,13 +146,16 @@ class PlayerFragment : Fragment() {
             player = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
             (player as SimpleExoPlayer).addAnalyticsListener(playbackStateListener)
             binding.playerView.player = player
+
+            (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
+                C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+
             //val uri = Uri.parse(getString(R.string.media_url_dash))
             val mediaSource = buildMediaSource(uri)
             (player as SimpleExoPlayer).playWhenReady = playWhenReady
             (player as SimpleExoPlayer).seekTo(currentWindow, playbackPosition)
             (player as SimpleExoPlayer).prepare(mediaSource, false, false)
         }
-
 
 
     }
@@ -125,6 +168,8 @@ class PlayerFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+        binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+
         initializePlayer()
     }
 
@@ -203,5 +248,10 @@ class PlayerFragment : Fragment() {
                         + " playWhenReady: " + playWhenReady
             )
         }
+    }
+
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+      //  mScaleGestureDetector?.onTouchEvent(event)
+        return true
     }
 }

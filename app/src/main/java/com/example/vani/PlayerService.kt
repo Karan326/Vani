@@ -26,7 +26,8 @@ class PlayerService : IntentService("PlayerService") {
 
     override fun onDestroy() {
 
-        playerNotificationManager.setPlayer(null)
+        if(::playerNotificationManager.isInitialized){
+        playerNotificationManager.setPlayer(null)}
         player?.release()
         player = null
 
@@ -38,14 +39,14 @@ class PlayerService : IntentService("PlayerService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
-
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val uri = intent?.getParcelableExtra<Uri>("uri")
         if (uri != null) {
             initializePlayer(uri)
         }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         return START_STICKY
     }
 
