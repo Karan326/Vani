@@ -1,7 +1,6 @@
 package com.example.vani
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
@@ -10,7 +9,10 @@ import android.view.*
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.example.vani.databinding.PlayerLayoutBinding
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
 import com.google.android.exoplayer2.source.MediaSource
@@ -40,24 +42,12 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         binding = PlayerLayoutBinding.inflate(inflater)
-
         return binding.root
-
     }
 
     var fullscreen = false
 
-
-   /* override fun onScale(detector: ScaleGestureDetector?): Boolean {
-
-        return false
-
-    }*/
-
-
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         uri = Uri.parse(arguments?.getString("uri"))
@@ -82,10 +72,16 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
             }
         }
 
+
+
+    }
+
+   /* private fun startService() {
         val intent = Intent(context, PlayerService::class.java)
         intent.putExtra("uri", uri)
-        Util.startForegroundService(context, intent)
-    }
+        context?.let { Util.startForegroundService(it, intent) }
+
+    }*/
 
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
         if (isInPictureInPictureMode) {
@@ -107,7 +103,7 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
     private fun buildMediaSource(uri: Uri): MediaSource? {
         // These factories are used to construct two media sources below
         val dataSourceFactory: DataSource.Factory =
-            DefaultDataSourceFactory(context, Util.getUserAgent(context, "vani_player"))
+            DefaultDataSourceFactory(context, context?.let { Util.getUserAgent(it, "vani_player") })
         val mediaSourceFactory = DashMediaSource.Factory(dataSourceFactory)
 
         val mediaSource: MediaSource?
@@ -139,25 +135,30 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
 
     private fun initializePlayer() {
         if (player == null) {
-            val trackSelector = DefaultTrackSelector()
-            trackSelector.setParameters(
+            val trackSelector = context?.let { DefaultTrackSelector(it) }
+            trackSelector?.setParameters(
                 trackSelector.buildUponParameters().setMaxVideoSizeSd()
             )
-            player = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-            (player as SimpleExoPlayer).addAnalyticsListener(playbackStateListener)
+
+            player=context?.let { trackSelector?.let { it1 ->
+                SimpleExoPlayer.Builder(it).setTrackSelector(
+                    it1
+                ).build()
+            } }
+
+            //player = context?.let { ExoPlayerFactory.newSimpleInstance(it, trackSelector) }
+            playbackStateListener?.let { (player as SimpleExoPlayer).addAnalyticsListener(it) }
             binding.playerView.player = player
 
             (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
-                C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+                C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
             //val uri = Uri.parse(getString(R.string.media_url_dash))
             val mediaSource = buildMediaSource(uri)
             (player as SimpleExoPlayer).playWhenReady = playWhenReady
             (player as SimpleExoPlayer).seekTo(currentWindow, playbackPosition)
-            (player as SimpleExoPlayer).prepare(mediaSource, false, false)
+            mediaSource?.let { (player as SimpleExoPlayer).prepare(it, false, false) }
         }
-
-
     }
 
 
@@ -169,12 +170,14 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
     override fun onStart() {
         super.onStart()
         binding.playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
-
+        //startService()
         initializePlayer()
     }
 
     override fun onStop() {
         super.onStop()
+        (activity as MainActivity).requestedOrientation =
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         releasePlayer()
     }
 
@@ -198,7 +201,7 @@ class PlayerFragment : Fragment(), View.OnTouchListener{
             playWhenReady = (player as SimpleExoPlayer).playWhenReady
             playbackPosition = (player as SimpleExoPlayer).currentPosition
             currentWindow = (player as SimpleExoPlayer).currentWindowIndex
-            (player as SimpleExoPlayer).removeListener(playbackStateListener)
+            playbackStateListener?.let { (player as SimpleExoPlayer).removeListener(it) }
             (player as SimpleExoPlayer).release()
             player = null
         }

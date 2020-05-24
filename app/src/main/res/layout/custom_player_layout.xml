@@ -38,9 +38,9 @@
             style="@style/ExoMediaButton.FastForward"
             android:tint="@color/colorPrimaryDark" />
 
-       <ImageButton android:id="@id/exo_next"
+      <!-- <ImageButton android:id="@id/exo_next"
              style="@style/ExoMediaButton.Next"
-           android:tint="@color/colorPrimaryDark"/>
+           android:tint="@color/colorPrimaryDark"/>-->
 
        <!--  <ImageButton android:id="@id/exo_vr"
              style="@style/ExoMediaButton.VR"

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "228833806369",
+    "firebase_url": "https://vani-c10bd.firebaseio.com",
+    "project_id": "vani-c10bd",
+    "storage_bucket": "vani-c10bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228833806369:android:3af591507c1e90fa9bfb60",
+        "android_client_info": {
+          "package_name": "com.example.vani"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "228833806369-9u8od0otkq3c7tuj8bl7nlbcp8gkkf1h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPoq3mHBAef2Pktn7tYnhT9r1Uo-P4FGI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "228833806369-9u8od0otkq3c7tuj8bl7nlbcp8gkkf1h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,6 +3,7 @@ package com.example.vani
 import android.app.PictureInPictureParams
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.util.Rational
 import androidx.appcompat.app.AppCompatActivity
@@ -12,8 +13,10 @@ import androidx.navigation.Navigation
 import com.example.vani.databinding.ActivityMainBinding
 
 
+
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+
 
     private lateinit var navigationController: NavController
     private var navHostFragment: Fragment? = null
@@ -23,11 +26,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         navigationController = Navigation.findNavController(this, R.id.nav_host_fragment_container)
 
+        FirebaseAnalytics(this).logEvent("MainActivityScreenOnCreate","actionDEfined")
+        FirebaseRemoteConfiguration().fetch(this)
 
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container)
-
-
     }
 
     private fun getPipRatio(): Rational? {
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onUserLeaveHint() {
 
-        val orientation = resources.configuration.orientation
+        /*val orientation:Int = resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             val navHostFragment = supportFragmentManager.primaryNavigationFragment
             val fragment = navHostFragment?.childFragmentManager?.primaryNavigationFragment
@@ -49,8 +52,25 @@ class MainActivity : AppCompatActivity() {
                     .build()
                 enterPictureInPictureMode(params)
             }
-        }
+        }*/
         super.onUserLeaveHint()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        Log.d("TAG","onConfigurationChanged")
+        super.onConfigurationChanged(newConfig)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        Log.d("TAG","onSaveInstanceState1")
+
+        super.onSaveInstanceState(outState, outPersistentState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        Log.d("TAG","onSaveInstanceState2")
+
+        super.onSaveInstanceState(outState)
     }
 
 

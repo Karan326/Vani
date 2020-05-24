@@ -1,30 +1,25 @@
 package com.example.vani
 
 import android.content.ContentUris
-import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vani.databinding.VideoListLayoutBinding
 import kotlinx.coroutines.*
-import java.util.concurrent.TimeUnit
 
 class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragment {
 
     private lateinit var videoListAdapter: VideoListAdapter
     private lateinit var binding: VideoListLayoutBinding
 
-    val videoList = mutableListOf<Video>()
+    private val videoList = mutableListOf<Video>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,9 +57,9 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
 
 // Show only videos that are at least 5 minutes in duration.
                // val selection = "${MediaStore.Video.Media.DURATION} >= ?"
-                val selectionArgs = arrayOf(
+               /* val selectionArgs = arrayOf(
                     TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES).toString()
-                )
+                )*/
 
 // Display videos in alphabetical order based on their display name.
                 val sortOrder = "${MediaStore.Video.Media.DISPLAY_NAME} ASC"

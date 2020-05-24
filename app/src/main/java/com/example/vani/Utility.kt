@@ -3,12 +3,6 @@ package com.example.vani
 import android.os.Build
 import android.util.Rational
 
-
-
-
-
-
-
 object Utility {
 
 

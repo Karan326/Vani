@@ -2,6 +2,7 @@ package com.example.vani
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,7 +15,7 @@ import com.example.vani.databinding.VideoItemBinding
 class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var mContext: Context? = null
-    val videoList = mutableListOf<Video>()
+    private val videoList = mutableListOf<Video>()
     private lateinit var binding: VideoItemBinding
     private lateinit var callbackToVideoListFragment: CallbackToVideoListFragment
 
@@ -41,11 +42,6 @@ class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     inner class VideoViewHolder(val binding: VideoItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        init {
-
-        }
-
-
         fun bind(item: Video) {
 
             binding.name.text = item.name
@@ -57,15 +53,17 @@ class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             val bundle = bundleOf("uri" to item.uri.toString())
 
             binding.thumbnail.setOnClickListener {
-                Navigation.findNavController(
+
+                val intent=Intent(mContext,PlayerActivity::class.java)
+                intent.putExtra("uri",item.uri.toString())
+                mContext?.startActivity(intent)
+                /*Navigation.findNavController(
                     mContext as Activity, R.id.nav_host_fragment_container
-                ).navigate(R.id.action_videoListFragment_to_playerFragment, bundle)
+                ).navigate(R.id.action_videoListFragment_to_playerFragment, bundle)*/
+                FirebaseAnalytics(mContext as Activity).logEvent("MainActivityScreenOnCreate","actionDEfined")
             }
 
         }
-
-
-
     }
 
     fun updateList(list: MutableList<Video>?) {

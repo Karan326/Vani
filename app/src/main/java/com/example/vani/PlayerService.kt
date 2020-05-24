@@ -39,14 +39,14 @@ class PlayerService : IntentService("PlayerService") {
     }
 
     override fun onHandleIntent(intent: Intent?) {
+
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val uri = intent?.getParcelableExtra<Uri>("uri")
         if (uri != null) {
             initializePlayer(uri)
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         return START_STICKY
     }
 
@@ -67,7 +67,7 @@ class PlayerService : IntentService("PlayerService") {
                 PlayerNotificationManager.createWithNotificationChannel(this,"1", R.string.notification_channel_name,
                     R.string.description_notification, 1,
                     object : PlayerNotificationManager.MediaDescriptionAdapter {
-                        override fun createCurrentContentIntent(player: Player?): PendingIntent? {
+                        override fun createCurrentContentIntent(player: Player): PendingIntent? {
                             val intent = Intent(this@PlayerService, MainActivity::class.java)
                             return PendingIntent.getActivity(
                                 this@PlayerService,
@@ -79,17 +79,17 @@ class PlayerService : IntentService("PlayerService") {
 
                         }
 
-                        override fun getCurrentContentText(player: Player?): String? {
+                        override fun getCurrentContentText(player: Player): String? {
                             return "hjdhd"
                         }
 
-                        override fun getCurrentContentTitle(player: Player?): String {
+                        override fun getCurrentContentTitle(player: Player): String {
                             return "jsjsk"
                         }
 
                         override fun getCurrentLargeIcon(
-                            player: Player?,
-                            callback: PlayerNotificationManager.BitmapCallback?
+                            player: Player,
+                            callback: PlayerNotificationManager.BitmapCallback
                         ): Bitmap? {
 
                             return null
@@ -104,7 +104,7 @@ class PlayerService : IntentService("PlayerService") {
 
                 override fun onNotificationStarted(
                     notificationId: Int,
-                    notification: Notification?
+                    notification: Notification
                 ) {
                     startForeground(notificationId, notification)
                 }
