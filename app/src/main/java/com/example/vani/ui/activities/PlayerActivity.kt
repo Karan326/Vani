@@ -12,7 +12,9 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Rational
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.vani.Utility
 import com.example.vani.databinding.PlayerLayoutBinding
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
@@ -30,7 +32,7 @@ import kotlinx.android.synthetic.main.custom_player_layout.view.*
 import java.util.concurrent.TimeUnit
 
 @Suppress("UNREACHABLE_CODE")
-class PlayerActivity : AppCompatActivity() {
+class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
     private var intLeft: Boolean = false
     private var intRight: Boolean = false
 
@@ -42,15 +44,15 @@ class PlayerActivity : AppCompatActivity() {
     private var seekSpeed = 0.0
 
     private var baseX = 0f
-    private  var baseY = 0f
+    private var baseY = 0f
     private var diffX: Long = 0
-    private  var diffY: Long = 0
+    private var diffY: Long = 0
     private var calculatedTime = 0
     private var seekDur: String? = null
     private var tested_ok = false
     private var screen_swipe_move = false
-    private  var intTop: Boolean = false
-    private  var intBottom: Boolean = false
+    private var intTop: Boolean = false
+    private var intBottom: Boolean = false
     private val MIN_DISTANCE = 150
     private var size: Point? = null
     private var display: Display? = null
@@ -79,15 +81,39 @@ class PlayerActivity : AppCompatActivity() {
         uri = Uri.parse(intent?.getStringExtra("uri"))
         name = intent?.getStringExtra("name")
         playbackStateListener = PlaybackAnalyticsListener()
-        setOnFullScreenButtonListener()
-        setOnBackButtonListener()
+
+        setListeners()
+
 
         setFullScreen()
 
 
+    }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setListeners() {
+        setOnFullScreenButtonListener()
+        setOnBackButtonListener()
+        binding.playerView.setOnTouchListener(this)
+        setOnCropListener()
+    }
 
+    private fun setOnCropListener() {
 
+        binding.playerView.resizeScreen.setOnClickListener{
+
+            if(binding.playerView.resizeMode!=AspectRatioFrameLayout.RESIZE_MODE_ZOOM) {
+                binding.playerView.resizeMode =
+                    AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+              Utility.toast(this,"Scaled to zoom ")
+
+            } else {
+                binding.playerView.resizeMode =
+                AspectRatioFrameLayout.RESIZE_MODE_FILL
+                Utility.toast(this,"Scaled to fill ")
+            }
+           // binding.playerView.invalidate()
+        }
     }
 
     private fun setFullScreen() {
@@ -188,9 +214,10 @@ class PlayerActivity : AppCompatActivity() {
 
 
 
-
-        (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
-            C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+        binding.playerView.resizeMode =
+            AspectRatioFrameLayout.RESIZE_MODE_FILL
+       /* (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
+            C.VIDEO_SCALING_MODE_SCALE_TO_FIT;*/
 
         binding.playerView.nameVideo.text = name
         val mediaSource = buildMediaSource(uri)
@@ -250,67 +277,6 @@ class PlayerActivity : AppCompatActivity() {
         releasePlayer()
     }
 
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return super.onTouchEvent(event)
-
-        when (event?.action) {
-            //TOUCH STARTED
-            MotionEvent.ACTION_DOWN -> {
-                if (event.x < (sWidth?.div(2))!!) {
-                    intLeft = true
-                    intRight = false
-                } else if (event.x > (sWidth!! / 2)) {
-                    intLeft = false
-                    intRight = true
-                }
-                val upperLimit = (sHeight?.div(4))?.plus(100)
-                val lowerLimit = ((sHeight?.div(4))?.times(3))?.minus(150)
-                when {
-                    event.y < upperLimit!! -> {
-                        intBottom = false
-                        intTop = true
-                    }
-                    event.y > lowerLimit!! -> {
-                        intBottom = true
-                        intTop = false
-                    }
-                    else -> {
-                        intBottom = false
-                        intTop = false
-                    }
-                }
-                seekSpeed = (player?.duration?.let { TimeUnit.MILLISECONDS.toSeconds(it) }
-                    ?.times(0.1)!!)
-                diffX = 0
-                calculatedTime = 0;
-                seekDur = String.format(
-                    "%02d:%02d",
-                    TimeUnit.MILLISECONDS.toMinutes(diffX) -
-                            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(diffX)),
-                    TimeUnit.MILLISECONDS.toSeconds(diffX) -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(diffX))
-                )
-
-
-                baseX = event.x
-                baseY = event.y
-            }
-         //TOUCH IS MOVED IN DIRECTION
-            MotionEvent.ACTION_MOVE->{
-
-            }
-            //TOUCH IS UP OR OTHER CONTROL TAKEN
-            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP->{
-
-            }
-
-        }
-
-        return super.onTouchEvent(event)
-
-
-    }
 
     override fun onResume() {
         super.onResume()
@@ -430,5 +396,61 @@ class PlayerActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        when (event?.action) {
+            //TOUCH STARTED
+            MotionEvent.ACTION_DOWN -> {
+                if (event.x < (sWidth?.div(2))!!) {
+                    intLeft = true
+                    intRight = false
+                } else if (event.x > (sWidth!! / 2)) {
+                    intLeft = false
+                    intRight = true
+                }
+                val upperLimit = (sHeight?.div(4))?.plus(100)
+                val lowerLimit = ((sHeight?.div(4))?.times(3))?.minus(150)
+                when {
+                    event.y < upperLimit!! -> {
+                        intBottom = false
+                        intTop = true
+                    }
+                    event.y > lowerLimit!! -> {
+                        intBottom = true
+                        intTop = false
+                    }
+                    else -> {
+                        intBottom = false
+                        intTop = false
+                    }
+                }
+                seekSpeed = (player?.duration?.let { TimeUnit.MILLISECONDS.toSeconds(it) }
+                    ?.times(0.1)!!)
+                diffX = 0
+                calculatedTime = 0;
+                seekDur = String.format(
+                    "%02d:%02d",
+                    TimeUnit.MILLISECONDS.toMinutes(diffX) -
+                            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(diffX)),
+                    TimeUnit.MILLISECONDS.toSeconds(diffX) -
+                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(diffX))
+                )
+
+
+                baseX = event.x
+                baseY = event.y
+            }
+            //TOUCH IS MOVED IN DIRECTION
+            MotionEvent.ACTION_MOVE -> {
+
+            }
+            //TOUCH IS UP OR OTHER CONTROL TAKEN
+            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+
+            }
+
+        }
+        return super.onTouchEvent(event)
+    }
 
 }
