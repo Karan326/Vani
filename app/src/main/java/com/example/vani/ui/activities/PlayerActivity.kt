@@ -52,6 +52,8 @@ class PlayerActivity : AppCompatActivity() {
         binding = PlayerLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        isPipModeOn()
+
         uri = Uri.parse(intent?.getStringExtra("uri"))
         playbackStateListener = PlaybackAnalyticsListener()
         fullscreenButton = binding.playerView.findViewById(R.id.exo_fullscreen_icon);
@@ -73,6 +75,11 @@ class PlayerActivity : AppCompatActivity() {
                 fullscreen = true
             }
         }
+
+    }
+
+    private fun isPipModeOn() {
+
 
     }
 
