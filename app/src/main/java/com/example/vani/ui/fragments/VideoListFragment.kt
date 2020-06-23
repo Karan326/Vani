@@ -1,7 +1,10 @@
 package com.example.vani.ui.fragments
 
+import android.app.Activity
 import android.content.ContentUris
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -14,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.vani.ui.pojos.Video
 import com.example.vani.ui.adapters.VideoListAdapter
 import com.example.vani.databinding.VideoListLayoutBinding
+import com.example.vani.firebase.FirebaseAnalytics
+import com.example.vani.ui.activities.PlayerActivity
 import kotlinx.coroutines.*
 
 class VideoListFragment : Fragment(),
@@ -50,13 +55,22 @@ class VideoListFragment : Fragment(),
     private suspend fun initialiseList() {
 
         withContext(Dispatchers.IO) {
-            val j = async {
+            val listJOB = async {
 
-                val projection = arrayOf(
-                    MediaStore.Video.Media._ID,
-                    MediaStore.Video.Media.DISPLAY_NAME,
-                    MediaStore.Video.Media.SIZE
-                )
+                val projection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    arrayOf(
+                        MediaStore.Video.Media._ID,
+                        MediaStore.Video.Media.DISPLAY_NAME,
+                        MediaStore.Video.Media.SIZE,
+                         MediaStore.Video.Media.DURATION
+                    )
+                } else {
+                    arrayOf(
+                        MediaStore.Video.Media._ID,
+                        MediaStore.Video.Media.DISPLAY_NAME,
+                        MediaStore.Video.Media.SIZE
+                    )
+                }
 
 // Show only videos that are at least 5 minutes in duration.
                // val selection = "${MediaStore.Video.Media.DURATION} >= ?"
@@ -81,12 +95,19 @@ class VideoListFragment : Fragment(),
                         cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                     val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
 
+                    val durationColumn= if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
+                    } else {
+                        null
+                    }
+
 
                     while (cursor.moveToNext()) {
                         // Get values of columns for a given video.
+                        var duration:Int?=null
                         val id = cursor.getLong(idColumn)
                         val name = cursor.getString(nameColumn)
-                        //val duration = cursor.getInt(durationColumn)
+                        if(durationColumn!=null) duration = cursor.getInt(durationColumn)
                         val size = cursor.getInt(sizeColumn)
 
                         val contentUri: Uri = ContentUris.withAppendedId(
@@ -102,17 +123,25 @@ class VideoListFragment : Fragment(),
                         // Stores column values and the contentUri in a local object
                         // that represents the media file.
 
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && duration!=null && duration>3000000){
                         videoList += Video(
                             contentUri,
                             name,
                             size
-                        )
+                        )}
+                        else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q){
+                            videoList += Video(
+                                contentUri,
+                                name,
+                                size
+                            )
+                        }
                         Log.d("TAG", name)
                     }
                     videoList
                 }
             }
-            val list = j.await()
+            val list = listJOB.await()
             withContext(Dispatchers.Main) {
                 videoListAdapter.updateList(list)
             }
@@ -122,10 +151,18 @@ class VideoListFragment : Fragment(),
 
     }
 
-    override fun sendDataAndOpenPlayer(uri: Uri) {
+    override fun sendDataAndOpenPlayer(item: Video) {
 
+        val intent= Intent(context, PlayerActivity::class.java)
+        intent.putExtra("uri",item.uri.toString())
+        intent.putExtra("name",item.name.toString())
 
-
+        context?.startActivity(intent)
+        /*Navigation.findNavController(
+            mContext as Activity, R.id.nav_host_fragment_container
+        ).navigate(R.id.action_videoListFragment_to_playerFragment, bundle)*/
+        FirebaseAnalytics(context as Activity)
+            .logEvent("MainActivityScreenOnCreate","actionDEfined")
 
     }
 

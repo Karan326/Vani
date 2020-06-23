@@ -1,18 +1,12 @@
 package com.example.vani.ui.adapters
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.vani.firebase.FirebaseAnalytics
-import com.example.vani.ui.activities.PlayerActivity
-import com.example.vani.ui.pojos.Video
 import com.example.vani.databinding.VideoItemBinding
+import com.example.vani.ui.pojos.Video
 
 class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -52,18 +46,10 @@ class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 .into(binding.thumbnail)
 
 
-            val bundle = bundleOf("uri" to item.uri.toString())
+           // val bundle = bundleOf("uri" to item.uri.toString())
 
             binding.thumbnail.setOnClickListener {
-
-                val intent=Intent(mContext, PlayerActivity::class.java)
-                intent.putExtra("uri",item.uri.toString())
-                mContext?.startActivity(intent)
-                /*Navigation.findNavController(
-                    mContext as Activity, R.id.nav_host_fragment_container
-                ).navigate(R.id.action_videoListFragment_to_playerFragment, bundle)*/
-                FirebaseAnalytics(mContext as Activity)
-                    .logEvent("MainActivityScreenOnCreate","actionDEfined")
+                callbackToVideoListFragment.sendDataAndOpenPlayer(item)
             }
 
         }
@@ -76,7 +62,7 @@ class VideoListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     interface CallbackToVideoListFragment {
-        fun sendDataAndOpenPlayer(uri: Uri)
+        fun sendDataAndOpenPlayer(uri: Video)
     }
 }
 

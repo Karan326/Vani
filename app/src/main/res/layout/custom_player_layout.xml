@@ -1,106 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_gravity="center"
-    android:background="@null">
-    <LinearLayout
+<layout xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="horizontal"
-        android:paddingTop="4dp">
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@null">
 
 
-        <ImageButton
-            android:id="@id/exo_rew"
-            style="@style/ExoMediaButton.Rewind"
-            android:tint="@color/colorPrimaryDark" />
-
-        <ImageButton
-            android:id="@id/exo_play"
-            style="@style/ExoMediaButton.Play"
-            android:tint="@color/colorPrimaryDark" />
-
-        <ImageButton
-            android:id="@id/exo_pause"
-            style="@style/ExoMediaButton.Pause"
-            android:tint="@color/colorPrimaryDark" />
-
-
-        <ImageButton
-            android:id="@id/exo_ffwd"
-            style="@style/ExoMediaButton.FastForward"
-            android:tint="@color/colorPrimaryDark" />
-
-      <!-- <ImageButton android:id="@id/exo_next"
-             style="@style/ExoMediaButton.Next"
-           android:tint="@color/colorPrimaryDark"/>-->
-
-       <!--  <ImageButton android:id="@id/exo_vr"
-             style="@style/ExoMediaButton.VR"
-             android:tint="@color/colorPrimaryDark"/>-->
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:background="#000000"
-        android:alpha="0.7"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@id/exo_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:padding="4dp"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-
-        <View
-            android:id="@id/exo_progress_placeholder"
-            android:layout_width="0dp"
-            android:layout_height="26dp"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:alpha="0.7"
-            android:background="#ffffff"
-            android:layout_weight="1" />
+            android:background="#000000"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@id/exo_duration"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/bpVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="12dp"
+                android:src="@drawable/back_arrow"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/nameVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textStyle="normal"
+                android:singleLine="true"
+                android:layout_margin="10dp"
+                android:layout_gravity="center_vertical"
+                />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/brightness"
+            android:layout_width="15dp"
+            android:layout_height="100dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="5dp"
+            android:padding="2dp"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:background="@color/cardview_dark_background">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_baseline_brightness_7_24"
+                />
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:max="100"
+                android:progress="33"
+                android:progressDrawable="@drawable/progress_vertical"
+                android:id="@+id/brightnessSlider"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/volume"
+            android:layout_width="15dp"
+            android:layout_height="100dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="5dp"
+            android:padding="2dp"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:background="@color/cardview_dark_background">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_baseline_volume_up_24"
+                />
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:max="100"
+                android:progress="33"
+                android:progressDrawable="@drawable/progress_vertical"
+                android:id="@+id/volumeSlider"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/seekbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:padding="4dp"
-            android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:alpha="0.7"
+            android:background="#000000"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/controls"
+           >
 
-        <ImageView
-            android:id="@+id/exo_fullscreen_icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
-            android:padding="3dp"
-            android:layout_margin="10dp"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:tint="#ffffff"
-            android:src="@drawable/full_screen_ic"/>
+            <TextView
+                android:id="@id/exo_position"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:padding="4dp"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
 
-    </LinearLayout>
+            <View
+                android:id="@id/exo_progress_placeholder"
+                android:layout_width="0dp"
+                android:layout_height="10dp"
+                android:layout_weight="1"
+                android:alpha="0.7"
+                android:background="#ffffff" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@id/exo_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:padding="4dp"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/exo_fullscreen_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/full_screen_ic"
+                android:tint="@color/exo_edit_mode_background_color"
+                tools:ignore="ContentDescription" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:alpha="0.7"
+            android:background="#000000"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+           >
+
+
+            <ImageButton
+                android:id="@id/exo_rew"
+                style="@style/ExoMediaButton.Rewind"
+                android:tint="@color/exo_edit_mode_background_color" />
+
+            <ImageButton
+                android:id="@id/exo_play"
+                style="@style/ExoMediaButton.Play"
+                android:tint="@color/exo_edit_mode_background_color" />
+
+            <ImageButton
+                android:id="@id/exo_pause"
+                style="@style/ExoMediaButton.Pause"
+                android:tint="@color/exo_edit_mode_background_color" />
+
+
+            <ImageButton
+                android:id="@id/exo_ffwd"
+                style="@style/ExoMediaButton.FastForward"
+                android:tint="@color/exo_edit_mode_background_color" />
+
+            <!-- <ImageButton android:id="@id/exo_next"
+                   style="@style/ExoMediaButton.Next"
+                 android:tint="@color/colorPrimaryDark"/>-->
+
+            <!--  <ImageButton android:id="@id/exo_vr"
+                  style="@style/ExoMediaButton.VR"
+                  android:tint="@color/colorPrimaryDark"/>-->
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
