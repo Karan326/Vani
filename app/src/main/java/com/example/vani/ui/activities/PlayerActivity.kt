@@ -1,4 +1,4 @@
-package com.example.vani
+package com.example.vani.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
@@ -14,6 +14,7 @@ import android.view.Surface
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.vani.R
 import com.example.vani.databinding.PlayerLayoutBinding
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
@@ -34,7 +35,7 @@ class PlayerActivity : AppCompatActivity() {
     private var fullscreenButton: ImageView? = null
     private var player: SimpleExoPlayer? = null
     private val mScaleGestureDetector: ScaleGestureDetector? = null
-    private var playbackStateListener: PlayerActivity.PlaybackAnalyticsListener? = null
+    private var playbackStateListener: PlaybackAnalyticsListener? = null
     private val TAG: String = PlayerActivity::class.java.name
     private lateinit var uri: Uri
     private var fullscreen = false

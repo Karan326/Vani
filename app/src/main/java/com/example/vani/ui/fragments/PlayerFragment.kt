@@ -1,4 +1,4 @@
-package com.example.vani
+package com.example.vani.ui.fragments
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import com.example.vani.ui.activities.MainActivity
+import com.example.vani.R
 import com.example.vani.databinding.PlayerLayoutBinding
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer

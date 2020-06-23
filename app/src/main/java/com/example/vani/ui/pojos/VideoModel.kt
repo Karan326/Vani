@@ -1,4 +1,4 @@
-package com.example.vani
+package com.example.vani.ui.pojos
 
 import android.graphics.Bitmap
 import android.net.Uri

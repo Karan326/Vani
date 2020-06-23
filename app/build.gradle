@@ -90,6 +90,13 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:$play_services"
     implementation 'com.google.android.gms:play-services-analytics:17.0.0'
 
+    // Recycler View
+    implementation "androidx.recyclerview:recyclerview:$recycler_view"
+
+
+    // Kotlin
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
 
     implementation project(path: ':mylibrary')

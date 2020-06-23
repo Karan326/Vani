@@ -1,4 +1,4 @@
-package com.example.vani
+package com.example.vani.ui.fragments
 
 import android.content.ContentUris
 import android.net.Uri
@@ -11,10 +11,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.vani.ui.pojos.Video
+import com.example.vani.ui.adapters.VideoListAdapter
 import com.example.vani.databinding.VideoListLayoutBinding
 import kotlinx.coroutines.*
 
-class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragment {
+class VideoListFragment : Fragment(),
+    VideoListAdapter.CallbackToVideoListFragment {
 
     private lateinit var videoListAdapter: VideoListAdapter
     private lateinit var binding: VideoListLayoutBinding
@@ -99,7 +102,11 @@ class VideoListFragment : Fragment(), VideoListAdapter.CallbackToVideoListFragme
                         // Stores column values and the contentUri in a local object
                         // that represents the media file.
 
-                        videoList += Video(contentUri, name, size)
+                        videoList += Video(
+                            contentUri,
+                            name,
+                            size
+                        )
                         Log.d("TAG", name)
                     }
                     videoList

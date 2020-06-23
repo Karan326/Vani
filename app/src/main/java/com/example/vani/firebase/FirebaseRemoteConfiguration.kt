@@ -1,8 +1,9 @@
-package com.example.vani
+package com.example.vani.firebase
 
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.example.vani.ui.activities.MainActivity
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.get

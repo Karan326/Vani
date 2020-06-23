@@ -1,6 +1,5 @@
 package com.example.vani
 
-import android.annotation.SuppressLint
 import android.app.IntentService
 import android.app.Notification
 import android.app.PendingIntent
@@ -8,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.IBinder
+import com.example.vani.ui.activities.MainActivity
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer

@@ -1,6 +1,5 @@
-package com.example.vani
+package com.example.vani.ui.activities
 
-import android.app.PictureInPictureParams
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -10,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.vani.firebase.FirebaseAnalytics
+import com.example.vani.firebase.FirebaseRemoteConfiguration
+import com.example.vani.R
 import com.example.vani.databinding.ActivityMainBinding
 
 
@@ -24,9 +26,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        navigationController = Navigation.findNavController(this, R.id.nav_host_fragment_container)
+        navigationController = Navigation.findNavController(this,
+            R.id.nav_host_fragment_container
+        )
 
-        FirebaseAnalytics(this).logEvent("MainActivityScreenOnCreate","actionDEfined")
+        FirebaseAnalytics(this)
+            .logEvent("MainActivityScreenOnCreate","actionDEfined")
         FirebaseRemoteConfiguration().fetch(this)
 
         navHostFragment =

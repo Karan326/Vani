@@ -1,4 +1,4 @@
-package com.example.vani
+package com.example.vani.firebase
 
 import android.content.Context
 import android.os.Bundle

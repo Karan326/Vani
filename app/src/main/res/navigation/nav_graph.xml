@@ -5,7 +5,7 @@
 
     <fragment
         android:id="@+id/videoListFragment"
-        android:name="com.example.vani.VideoListFragment"
+        android:name="com.example.vani.ui.fragments.VideoListFragment"
         android:label="VideoListFragment" >
         <action
             android:id="@+id/action_videoListFragment_to_playerFragment"
@@ -18,6 +18,6 @@
     </fragment>
     <fragment
         android:id="@+id/playerFragment"
-        android:name="com.example.vani.PlayerFragment"
+        android:name="com.example.vani.ui.fragments.PlayerFragment"
         android:label="PlayerFragment" />
 </navigation>
