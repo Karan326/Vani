@@ -2,18 +2,22 @@ package com.example.vani.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.PictureInPictureParams
+import android.content.ContentResolver
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Point
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.Settings
+import android.provider.Settings.SettingNotFoundException
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Rational
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.vani.R
 import com.example.vani.Utility
 import com.example.vani.databinding.PlayerLayoutBinding
 import com.google.android.exoplayer2.*
@@ -30,9 +34,15 @@ import com.google.android.exoplayer2.util.Util
 import kotlinx.android.synthetic.main.custom_player_layout.*
 import kotlinx.android.synthetic.main.custom_player_layout.view.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
+import kotlin.math.ceil
 
-@Suppress("UNREACHABLE_CODE")
 class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
+    private var mediavolume: Int=0
+    private var cResolver: ContentResolver? = null
+    private var windoW:Window?= null
+
+    private var screen_swipe_move: Boolean=false
     private var intLeft: Boolean = false
     private var intRight: Boolean = false
 
@@ -49,11 +59,8 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
     private var diffY: Long = 0
     private var calculatedTime = 0
     private var seekDur: String? = null
-    private var tested_ok = false
-    private var screen_swipe_move = false
     private var intTop: Boolean = false
     private var intBottom: Boolean = false
-    private val MIN_DISTANCE = 150
     private var size: Point? = null
     private var display: Display? = null
     lateinit var binding: PlayerLayoutBinding
@@ -64,9 +71,7 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
     private val TAG: String = PlayerActivity::class.java.name
     private lateinit var uri: Uri
     private var name: String? = null
-
     private var fullscreen = false
-
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
@@ -81,13 +86,8 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
         uri = Uri.parse(intent?.getStringExtra("uri"))
         name = intent?.getStringExtra("name")
         playbackStateListener = PlaybackAnalyticsListener()
-
         setListeners()
-
-
         setFullScreen()
-
-
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -100,19 +100,18 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
 
     private fun setOnCropListener() {
 
-        binding.playerView.resizeScreen.setOnClickListener{
+        binding.playerView.resizeScreen.setOnClickListener {
 
-            if(binding.playerView.resizeMode!=AspectRatioFrameLayout.RESIZE_MODE_ZOOM) {
+            if (binding.playerView.resizeMode == AspectRatioFrameLayout.RESIZE_MODE_ZOOM) {
+                binding.playerView.resizeMode =
+                    AspectRatioFrameLayout.RESIZE_MODE_FILL
+                Utility.toast(this, "Scaled to fill ")
+            } else if (binding.playerView.resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
                 binding.playerView.resizeMode =
                     AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-              Utility.toast(this,"Scaled to zoom ")
-
-            } else {
-                binding.playerView.resizeMode =
-                AspectRatioFrameLayout.RESIZE_MODE_FILL
-                Utility.toast(this,"Scaled to fill ")
+                Utility.toast(this, "Scaled to zoom ")
             }
-           // binding.playerView.invalidate()
+            // binding.playerView.invalidate()
         }
     }
 
@@ -152,7 +151,7 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
         binding.playerView.exo_fullscreen_icon.setOnClickListener {
             if (fullscreen) {
 
-                this.window.decorView.systemUiVisibility =
+                this.window?.decorView?.systemUiVisibility =
                     View.SYSTEM_UI_FLAG_VISIBLE
 
                 this.requestedOrientation =
@@ -216,8 +215,8 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
 
         binding.playerView.resizeMode =
             AspectRatioFrameLayout.RESIZE_MODE_FILL
-       /* (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
-            C.VIDEO_SCALING_MODE_SCALE_TO_FIT;*/
+        /* (binding.playerView.player as SimpleExoPlayer).videoScalingMode =
+             C.VIDEO_SCALING_MODE_SCALE_TO_FIT;*/
 
         binding.playerView.nameVideo.text = name
         val mediaSource = buildMediaSource(uri)
@@ -395,6 +394,9 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
 
         super.onSaveInstanceState(outState)
     }
+    private val MIN_DISTANCE = 150
+    private var brightness = 0
+    private val audioManager: AudioManager? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
@@ -442,10 +444,186 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
             }
             //TOUCH IS MOVED IN DIRECTION
             MotionEvent.ACTION_MOVE -> {
+                screen_swipe_move = true
+                //if (controlsState == FULLCONTORLS) {
+                   // root.setVisibility(View.GONE)
+                    diffX = Math.ceil(event.x - baseX.toDouble()).toLong()
+                    diffY = Math.ceil(event.y - baseY.toDouble()).toLong()
+                    val brightnessSpeed = 0.05
+                    if (Math.abs(diffY) > MIN_DISTANCE) {
+                        //tested_ok = true
+                    }
+                    if (abs(diffY) > abs(diffX)) {
+                        if (intLeft) {
+                            cResolver = contentResolver
+                            windoW = window
+                            try {
+                                Settings.System.putInt(
+                                    cResolver,
+                                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                                )
+                                brightness = Settings.System.getInt(
+                                    cResolver,
+                                    Settings.System.SCREEN_BRIGHTNESS
+                                )
+                            } catch (e: SettingNotFoundException) {
+                                e.printStackTrace()
+                            }
+                            var newBrightness =
+                                (brightness - diffY * brightnessSpeed)
+                            if (newBrightness > 250) {
+                                newBrightness = 250.0
+                            } else if (newBrightness < 1) {
+                                newBrightness = 1.0
+                            }
+                            val brightPerc = ceil(newBrightness.toDouble() / 250.toDouble() * 100.toDouble())
+                            binding.playerView.brightness.visibility = View.VISIBLE
+                            binding.playerView.volume_brighness_container.visibility = View.VISIBLE
+                            binding.playerView.brightnessSlider.progress = brightPerc.toInt()
+                            if (brightPerc < 30) {
+                                binding.playerView.brightness_icon.setImageResource(R.drawable.ic_brightness_low)
+                                binding.playerView.volume_brighness_icon.setImageResource(R.drawable.ic_brightness_low)
+
+                            } else if (brightPerc > 30 && brightPerc < 80) {
+                                binding.playerView.brightness_icon.setImageResource(R.drawable.ic__brightness_medium)
+                                binding.playerView.volume_brighness_icon.setImageResource(R.drawable.ic__brightness_medium)
+
+                            } else if (brightPerc > 80) {
+                                binding.playerView.brightness_icon.setImageResource(R.drawable.ic_brightness_full)
+                                binding.playerView.volume_brighness_icon.setImageResource(R.drawable.ic_brightness_full)
+
+                            }
+                            binding.playerView.volume_brightness_percent.text = " " + brightPerc.toInt()
+                            Settings.System.putInt(
+                                cResolver,
+                                Settings.System.SCREEN_BRIGHTNESS,
+                                newBrightness.toInt()
+                            )
+                            val layoutpars = window?.attributes
+                            layoutpars?.screenBrightness = brightness / 255.toFloat()
+                            window?.attributes = layoutpars
+                        } else if (intRight) {
+                            if (audioManager != null) {
+                                mediavolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                            }
+                            val maxVol: Int =
+                                audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC)?:100
+                            val cal =
+                                diffY.toDouble() * (maxVol.toDouble() / (device_height!! * 4).toDouble())
+                            var newMediaVolume: Int = mediavolume - cal.toInt()
+                            if (newMediaVolume > maxVol) {
+                                newMediaVolume = maxVol
+                            } else if (newMediaVolume < 1) {
+                                newMediaVolume = 0
+                            }
+                            audioManager?.setStreamVolume(
+                                AudioManager.STREAM_MUSIC,
+                                newMediaVolume,
+                                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
+                            )
+                            val volPerc =
+                                ceil(newMediaVolume.toDouble() / maxVol.toDouble() * 100.toDouble())
+                            binding.playerView.volume_brightness_percent.text = " " + volPerc.toInt()
+                            binding.playerView.volume.visibility = View.VISIBLE
+                            binding.playerView.volume_brighness_container.visibility = View.VISIBLE
+                            binding.playerView.brightnessSlider.progress = volPerc.toInt()
+                            if (volPerc < 1) {
+                                binding.playerView.volume_icon.setImageResource(R.drawable.ic_volume_off)
+                                binding.playerView.volume_brighness_icon.setImageResource(R.drawable.ic_volume_off)
+                                binding.playerView.volume_brighness_container.visibility = View.GONE
+                            } else if (volPerc >= 1) {
+                                binding.playerView.volume_icon.setImageResource(R.drawable.ic_volume_up_full)
+                                binding.playerView.volume_brighness_icon.setImageResource(R.drawable.ic_volume_up_full)
+                                binding.playerView.volume_brighness_container.visibility = View.VISIBLE
+                            }
+                            binding.playerView.volume_brighness_container.visibility = View.VISIBLE
+                            binding.playerView.volumeSlider.progress = volPerc.toInt()
+                        }
+                    } /*else if (Math.abs(diffX) > Math.abs(diffY)) {
+                        if (Math.abs(diffX) > com.andromeda.kunalbhatia.demo.hungamaplayer.VideoPlayer.MIN_DISTANCE + 100) {
+                            tested_ok = true
+                            root.setVisibility(View.VISIBLE)
+                            seekBar_center_text.setVisibility(View.VISIBLE)
+                            onlySeekbar.setVisibility(View.VISIBLE)
+                            top_controls.setVisibility(View.GONE)
+                            bottom_controls.setVisibility(View.GONE)
+                            var totime = ""
+                            calculatedTime = (diffX * seekSpeed).toInt()
+                            if (calculatedTime > 0) {
+                                seekDur = String.format(
+                                    "[ +%02d:%02d ]",
+                                    TimeUnit.MILLISECONDS.toMinutes(
+                                        calculatedTime.toLong()
+                                    ) -
+                                            TimeUnit.HOURS.toMinutes(
+                                                TimeUnit.MILLISECONDS.toHours(
+                                                    calculatedTime.toLong()
+                                                )
+                                            ),
+                                    TimeUnit.MILLISECONDS.toSeconds(
+                                        calculatedTime.toLong()
+                                    ) -
+                                            TimeUnit.MINUTES.toSeconds(
+                                                TimeUnit.MILLISECONDS.toMinutes(
+                                                    calculatedTime.toLong()
+                                                )
+                                            )
+                                )
+                            } else if (calculatedTime < 0) {
+                                seekDur = String.format(
+                                    "[ -%02d:%02d ]",
+                                    Math.abs(
+                                        TimeUnit.MILLISECONDS.toMinutes(
+                                            calculatedTime.toLong()
+                                        ) -
+                                                TimeUnit.HOURS.toMinutes(
+                                                    TimeUnit.MILLISECONDS.toHours(
+                                                        calculatedTime.toLong()
+                                                    )
+                                                )
+                                    ),
+                                    Math.abs(
+                                        TimeUnit.MILLISECONDS.toSeconds(
+                                            calculatedTime.toLong()
+                                        ) -
+                                                TimeUnit.MINUTES.toSeconds(
+                                                    TimeUnit.MILLISECONDS.toMinutes(
+                                                        calculatedTime.toLong()
+                                                    )
+                                                )
+                                    )
+                                )
+                            }
+                            totime = String.format(
+                                "%02d:%02d",
+                                TimeUnit.MILLISECONDS.toMinutes(player!!.currentPosition + calculatedTime) -
+                                        TimeUnit.HOURS.toMinutes(
+                                            TimeUnit.MILLISECONDS.toHours(
+                                                player!!.currentPosition + calculatedTime
+                                            )
+                                        ),  // The change is in this line
+                                TimeUnit.MILLISECONDS.toSeconds(player!!.currentPosition + calculatedTime) -
+                                        TimeUnit.MINUTES.toSeconds(
+                                            TimeUnit.MILLISECONDS.toMinutes(
+                                                player!!.currentPosition + calculatedTime
+                                            )
+                                        )
+                            )
+                            txt_seek_secs.setText(seekDur)
+                            txt_seek_currTime.setText(totime)
+                            seekBar.setProgress((player!!.currentPosition + calculatedTime).toInt())
+                        }
+                    }*/
+             //   }
 
             }
             //TOUCH IS UP OR OTHER CONTROL TAKEN
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+
+                binding.playerView.brightness.visibility = View.GONE
+                binding.playerView.volume.visibility = View.GONE
+                binding.playerView.volume_brighness_container.visibility = View.GONE
 
             }
 

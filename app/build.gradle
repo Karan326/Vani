@@ -103,6 +103,4 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glide_version"
     implementation 'jp.wasabeef:glide-transformations:3.3.0'
 
-    implementation project(path: ':mylibrary')
-
 }

@@ -1,8 +1,10 @@
 package com.example.vani.ui.fragments
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,7 +52,65 @@ class VideoListFragment : Fragment(),
         binding.videoListRV.layoutManager = mLayoutManager
         videoListAdapter.setCallBacktoVideoListFragment(this)
         binding.videoListRV.adapter = videoListAdapter
+        setupPermissions()
 
+
+    }
+
+    private fun setupPermissions() {
+        val permissionRead = activity?.let {
+            ContextCompat.checkSelfPermission(
+                it,
+                Manifest.permission.READ_EXTERNAL_STORAGE )
+        }
+
+        val permissionWrite= activity?.let {
+            ContextCompat.checkSelfPermission(
+                it,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE )
+        }
+
+        if (permissionRead != PackageManager.PERMISSION_GRANTED
+            && permissionWrite!= PackageManager.PERMISSION_GRANTED) {
+            Log.i("TAG", "Permission to read denied")
+            makeRequest(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        }
+        else if(permissionRead != PackageManager.PERMISSION_GRANTED){
+            makeRequest(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
+        }else if(permissionRead != PackageManager.PERMISSION_GRANTED){
+            makeRequest(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        }else{
+            initLists()
+        }
+    }
+
+    private fun makeRequest(arrayOf: Array<String>) {
+        requestPermissions(arrayOf,
+                1)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+
+        when (requestCode) {
+            1 -> {
+
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+
+                    Log.i("TAG", "Permission has been denied by user")
+                } else {
+                    Log.i("TAG", "Permission has been granted by user")
+                    initLists()
+                }
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun initLists() {
         CoroutineScope(Dispatchers.Main).launch { initialiseList() }
     }
 
