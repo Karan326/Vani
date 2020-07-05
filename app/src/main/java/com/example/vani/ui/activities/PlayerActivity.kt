@@ -16,7 +16,10 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Rational
 import android.view.*
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.BindingAdapter
+import androidx.databinding.BindingMethods
 import com.example.vani.R
 import com.example.vani.Utility
 import com.example.vani.databinding.PlayerLayoutBinding
@@ -90,11 +93,22 @@ class PlayerActivity : AppCompatActivity(), View.OnTouchListener {
         setFullScreen()
     }
 
+    @BindingAdapter("android:paddingLeft")
+    internal fun View.bindPadding(paddingLeft:Int){
+        setPadding(
+            paddingLeft,
+            paddingTop,
+            paddingRight,
+            paddingBottom
+        )
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
         setOnFullScreenButtonListener()
         setOnBackButtonListener()
         binding.playerView.setOnTouchListener(this)
+        //binding.playerView.bindPadding(2)
         setOnCropListener()
     }
 
